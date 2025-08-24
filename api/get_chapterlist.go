@@ -78,11 +78,11 @@ type Draft struct {
 	Explain string `json:"explain"`
 }
 
-func GetChapterList(novelId string) ChapterListRoot {
+func GetChapterList(novelId string) (ChapterListRoot, error) {
 	appUrl := fmt.Sprintf("https://app-cdn.jjwxc.com/androidapi/chapterList?novelId=%s", novelId)
 	res, err := http.Get(appUrl)
 	if err != nil {
-		return ChapterListRoot{}
+		return ChapterListRoot{}, err
 	}
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
@@ -93,11 +93,11 @@ func GetChapterList(novelId string) ChapterListRoot {
 	var result ChapterListRoot
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		return ChapterListRoot{}
+		return ChapterListRoot{}, err
 	}
 	err = json.Unmarshal(body, &result)
 	if err != nil {
-		return ChapterListRoot{}
+		return ChapterListRoot{}, err
 	}
-	return result
+	return result, nil
 }

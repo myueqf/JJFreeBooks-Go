@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// Root 是整个 JSON 响应的根结构
+// BookListRoot 是整个 JSON 响应的根结构
 type BookListRoot struct {
 	Code    string `json:"code"`
 	Message string `json:"message"`
@@ -48,7 +48,7 @@ type NovelData struct {
 	RecommendInfo   string `json:"recommendInfo"` // 这个字段本身是 JSON 字符串
 }
 
-func GetBooksList() BookListRoot {
+func GetBooksList() (BookListRoot, error) {
 	now := time.Now()
 	date := now.Format("2006-01-02")
 
@@ -60,7 +60,7 @@ func GetBooksList() BookListRoot {
 
 	res, err := http.Get(appUrl)
 	if err != nil {
-		return BookListRoot{}
+		return BookListRoot{}, err
 	}
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
@@ -71,11 +71,11 @@ func GetBooksList() BookListRoot {
 	var result BookListRoot
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		return BookListRoot{}
+		return BookListRoot{}, err
 	}
 	err = json.Unmarshal(body, &result)
 	if err != nil {
-		return BookListRoot{}
+		return BookListRoot{}, err
 	}
-	return result
+	return result, nil
 }

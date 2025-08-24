@@ -2,12 +2,13 @@ package api
 
 import (
 	"JJFreeBooks/crypto"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strconv"
+	"time"
 )
 
 type ChapterDetail struct {
@@ -53,22 +54,18 @@ func GetChapterContent(novelId, chapterId int) (ChapterDetail, error) {
 }
 
 func GetVIPChapterContent(token string, novelId, chapterId int) (ChapterDetail, error) {
-	ciphertextStr := fmt.Sprintf("%s:%s:%s", token, strconv.Itoa(novelId), strconv.Itoa(chapterId))
-	fmt.Println(ciphertextStr)
-	key, err := base64.StdEncoding.DecodeString("S1c4RHZtMk4=")
+	key := "KW8Dvm2N"
+	iv := "1ae2c94b"
+	timestamp := time.Now().UnixMilli()
+	ciphertextStr := fmt.Sprintf("%s:%s:%s:%s", strconv.Itoa(int(timestamp)), token, strconv.Itoa(novelId), strconv.Itoa(chapterId))
+
+	ciphertext, err := crypto.DesEncrypt([]byte(ciphertextStr), []byte(key), []byte(iv))
 	if err != nil {
 		return ChapterDetail{}, err
 	}
-	iv, err := base64.StdEncoding.DecodeString("MWFlMmM5NGI=")
-	if err != nil {
-		return ChapterDetail{}, err
-	}
-	ciphertext, err := crypto.DesEncrypt([]byte(ciphertextStr), key, iv)
-	if err != nil {
-		return ChapterDetail{}, err
-	}
-	fmt.Println(ciphertext)
-	appUrl := fmt.Sprintf("https://android.jjwxc.net/androidapi/chapterContent?readState=readahead&versionCode=454&sign=%s", ciphertext)
+	escapedChannelBody := url.QueryEscape(ciphertext)
+	fmt.Println(escapedChannelBody)
+	appUrl := fmt.Sprintf("https://android.jjwxc.net/androidapi/chapterContent?readState=readahead&versionCode=454&sign=%s", escapedChannelBody)
 
 	req, err := http.NewRequest("GET", appUrl, nil)
 	if err != nil {
@@ -99,11 +96,8 @@ func GetVIPChapterContent(token string, novelId, chapterId int) (ChapterDetail, 
 	if err != nil {
 		return ChapterDetail{}, err
 	}
-	fmt.Println(string(body))
 
-	bodyBase64 := base64.StdEncoding.EncodeToString(body)
-	fmt.Println(bodyBase64)
-	data, err := crypto.DesDecrypt(bodyBase64, []byte(key), []byte(iv))
+	data, err := crypto.DesDecrypt(string(body), []byte(key), []byte(iv))
 	if err != nil {
 		return ChapterDetail{}, err
 	}

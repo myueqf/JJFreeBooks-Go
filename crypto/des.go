@@ -25,7 +25,7 @@ func pkcs5Padding(data []byte) []byte {
 	return append(data, padText...) // 返回原始数据 + 填充
 }
 
-// pkcs5Unpadding 去除 PKCS5 填充。
+// pkcs5UnPadding 去除 PKCS5 填充。
 // 会验证填充是否合法，防止恶意输入或解密错误。
 //
 // 参数：
@@ -102,6 +102,7 @@ func DesEncrypt(plainText, key, iv []byte) (string, error) {
 // 返回值：
 //   - 解密后的明文字符串，以及可能的错误
 func DesDecrypt(ciphertextStr string, key, iv []byte) (string, error) {
+	fmt.Println(ciphertextStr)
 	if len(key) != 8 {
 		return "", fmt.Errorf("密钥长度必须为 8 字节，当前为 %d 字节", len(key))
 	}
@@ -109,18 +110,17 @@ func DesDecrypt(ciphertextStr string, key, iv []byte) (string, error) {
 		return "", fmt.Errorf("IV 长度必须为 8 字节，当前为 %d 字节", len(iv))
 	}
 
-	ciphertext, err := base64.StdEncoding.DecodeString(ciphertextStr)
-	if err != nil {
-		return "", fmt.Errorf("base64 解码失败：%w", err)
-	}
-
-	if len(ciphertext)%8 != 0 {
-		return "", fmt.Errorf("密文长度不是 8 的倍数，可能已损坏")
-	}
-
 	block, err := des.NewCipher(key)
 	if err != nil {
 		return "", fmt.Errorf("创建 DES 解密器失败：%w", err)
+	}
+	ciphertext, err := base64.StdEncoding.DecodeString(ciphertextStr)
+	if err != nil {
+		return "", fmt.Errorf("base64解码失败：%w", err)
+	}
+
+	if len(ciphertext)%8 != 0 {
+		return "", fmt.Errorf("密文长度必须是8的倍数，当前长度为 %d", len(ciphertext))
 	}
 
 	mode := cipher.NewCBCDecrypter(block, iv)

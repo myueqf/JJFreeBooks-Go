@@ -2,6 +2,7 @@ package api
 
 import (
 	"JJFreeBooks/crypto"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -54,12 +55,10 @@ func GetChapterContent(novelId, chapterId int) (ChapterDetail, error) {
 }
 
 func GetVIPChapterContent(token string, novelId, chapterId int) (ChapterDetail, error) {
-	key := "KW8Dvm2N"
-	iv := "1ae2c94b"
 	timestamp := time.Now().UnixMilli()
 	ciphertextStr := fmt.Sprintf("%s:%s:%s:%s", strconv.Itoa(int(timestamp)), token, strconv.Itoa(novelId), strconv.Itoa(chapterId))
 
-	ciphertext, err := crypto.DesEncrypt([]byte(ciphertextStr), []byte(key), []byte(iv))
+	ciphertext, err := crypto.DesEncrypt([]byte(ciphertextStr), []byte("KW8Dvm2N"), []byte("1ae2c94b"))
 	if err != nil {
 		return ChapterDetail{}, err
 	}
@@ -96,12 +95,42 @@ func GetVIPChapterContent(token string, novelId, chapterId int) (ChapterDetail, 
 	if err != nil {
 		return ChapterDetail{}, err
 	}
+	var result ChapterDetail
+	var dest string
+	var keyIv = crypto.KeyIv{}
+	var key, iv []byte
+	accesskey := res.Header.Get("accesskey")
+	keystring := res.Header.Get("keystring")
 
-	data, err := crypto.DesDecrypt(string(body), []byte(key), []byte(iv))
+	if json.Valid(body) {
+		var r map[string]interface{}
+		err = json.Unmarshal(body, &r)
+		if err != nil {
+			return ChapterDetail{}, err
+		}
+		fmt.Println(r)
+		if content, ok := r["content"].(string); ok {
+			dest = content
+		} else {
+			return ChapterDetail{}, fmt.Errorf("字段 'content' 不存在或不是字符串")
+		}
+	} else {
+		dest, keyIv, err = crypto.DynamicDecrypt(string(body), accesskey, keystring)
+		fmt.Println(dest)
+		if err != nil {
+			return ChapterDetail{}, err
+		}
+	}
+	key = keyIv.Key
+	iv = keyIv.Iv
+	fmt.Println(hex.EncodeToString(key))
+	fmt.Println(hex.EncodeToString(iv))
+
+	var data string
+	data, err = crypto.DesDecrypt(dest, key, iv)
 	if err != nil {
 		return ChapterDetail{}, err
 	}
-	var result ChapterDetail
 	err = json.Unmarshal([]byte(data), &result)
 	if err != nil {
 		return ChapterDetail{}, err

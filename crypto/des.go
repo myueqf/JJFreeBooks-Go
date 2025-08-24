@@ -102,7 +102,6 @@ func DesEncrypt(plainText, key, iv []byte) (string, error) {
 // 返回值：
 //   - 解密后的明文字符串，以及可能的错误
 func DesDecrypt(ciphertextStr string, key, iv []byte) (string, error) {
-	fmt.Println(ciphertextStr)
 	if len(key) != 8 {
 		return "", fmt.Errorf("密钥长度必须为 8 字节，当前为 %d 字节", len(key))
 	}

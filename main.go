@@ -11,8 +11,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	novelId := 7235273
-	chapterId := 55
+	novelId := 5961196
+	chapterId := 57
 	chapterDetail, err := api.GetVIPChapterContent(appConfig.Token, novelId, chapterId)
 	if err != nil {
 		panic(err)

@@ -65,7 +65,5 @@ func DynamicDecryptWithContent(context, accessKey, keystring string) (string, er
 	if err != nil {
 		return "", err
 	}
-
-	// 使用生成的密钥和IV进行DES解密
 	return DesDecrypt(dest, keyIv.Key, keyIv.Iv)
 }

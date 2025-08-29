@@ -54,18 +54,13 @@ func GetChapterContent(novelId, chapterId int) (ChapterDetail, error) {
 		return ChapterDetail{}, err
 	}
 
-	// 检查是否为VIP章节错误响应 (基于JavaScript逻辑)
+	// 检查是否为VIP章节错误响应
 	if result.Code == 1004 {
-		fmt.Printf("章节 %d 返回1004响应，可能是限免VIP章节\n", chapterId)
-
 		// 如果有加密内容，尝试解密
 		if result.Content != "" {
-			fmt.Printf("章节 %d 检测到加密内容: \"%s\"\n", chapterId, result.Content)
-
 			// 尝试固定密钥解密（限免VIP章节通常用这种方式）
 			decrypted, err := crypto.DesDecryptString(result.Content, "KW8Dvm2N", "1ae2c94b")
 			if err == nil && decrypted != "" {
-				fmt.Printf("章节 %d 固定密钥解密成功，内容长度: %d\n", chapterId, len(decrypted))
 				result.Content = decrypted
 				return result, nil
 			} else {
@@ -73,8 +68,6 @@ func GetChapterContent(novelId, chapterId int) (ChapterDetail, error) {
 				result.Content = fmt.Sprintf("<VIP章节解密失败，原始内容: %s>", result.Content)
 			}
 		} else {
-			// 没有内容的1004响应，可能是无权限
-			fmt.Printf("<该章节为VIP章节，需要购买才能阅读>")
 			result.Content = "<该章节为VIP章节，需要购买才能阅读>"
 		}
 	}
@@ -83,10 +76,8 @@ func GetChapterContent(novelId, chapterId int) (ChapterDetail, error) {
 	if result.Content != "" {
 		// 检查内容是否为加密内容（长度>30且不包含中文字符）
 		if len(result.Content) > 30 && !ContainsChinese(result.Content) {
-			fmt.Printf("章节 %d 检测到可能的加密内容，尝试解密\n", chapterId)
 			decrypted, err := crypto.DesDecryptString(result.Content, "KW8Dvm2N", "1ae2c94b")
 			if err == nil && decrypted != "" && ContainsChinese(decrypted) {
-				fmt.Printf("章节 %d 解密成功，最终内容长度: %d\n", chapterId, len(decrypted))
 				result.Content = decrypted
 			} else {
 				fmt.Printf("章节 %d 解密失败，使用原始内容\n", chapterId)
@@ -147,12 +138,8 @@ func GetVIPChapterContent(token string, novelId, chapterId int) (ChapterDetail, 
 	responseText := string(body)
 	isPay := !json.Valid(body) || !containsContent(responseText)
 
-	fmt.Printf("章节 %d 解密状态: isPay=%t, hasAccesskey=%t, hasKeystring=%t\n",
-		chapterId, isPay, accesskey != "", keystring != "")
-
 	if isPay && accesskey != "" && keystring != "" {
 		// 使用动态解密
-		fmt.Printf("章节 %d 使用动态密钥解密整个响应体\n", chapterId)
 		decrypted, err := crypto.DynamicDecryptWithContent(responseText, accesskey, keystring)
 		if err != nil {
 			return ChapterDetail{}, fmt.Errorf("动态解密失败: %w", err)
@@ -162,10 +149,8 @@ func GetVIPChapterContent(token string, novelId, chapterId int) (ChapterDetail, 
 		if err := json.Unmarshal([]byte(decrypted), &result); err == nil {
 			// 检查是否需要进一步解密content字段 (基于JavaScript逻辑)
 			if result.Content != "" && len(result.Content) > 30 {
-				fmt.Printf("章节 %d 动态解密后内容长度>30，尝试固定密钥解密\n", chapterId)
 				finalContent, err := crypto.DesDecryptString(result.Content, "KW8Dvm2N", "1ae2c94b")
 				if err == nil && finalContent != "" {
-					fmt.Printf("章节 %d 固定密钥解密成功，最终内容长度: %d\n", chapterId, len(finalContent))
 					result.Content = finalContent
 				} else {
 					fmt.Printf("章节 %d 固定密钥解密失败，使用动态解密结果\n", chapterId)
@@ -194,10 +179,8 @@ func GetVIPChapterContent(token string, novelId, chapterId int) (ChapterDetail, 
 
 		// 检查content是否需要解密
 		if result.Content != "" && len(result.Content) > 30 && !ContainsChinese(result.Content) {
-			fmt.Printf("章节 %d 检测到可能的加密内容，尝试解密\n", chapterId)
 			decrypted, err := crypto.DesDecryptString(result.Content, "KW8Dvm2N", "1ae2c94b")
 			if err == nil && decrypted != "" && ContainsChinese(decrypted) {
-				fmt.Printf("章节 %d 解密成功，最终内容长度: %d\n", chapterId, len(decrypted))
 				result.Content = decrypted
 			} else {
 				fmt.Printf("章节 %d 解密失败，使用原始内容\n", chapterId)

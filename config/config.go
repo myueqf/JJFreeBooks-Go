@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"os"
 
 	"gopkg.in/yaml.v3"
@@ -13,7 +14,7 @@ type Config struct {
 
 func defaultConfig() Config {
 	var config = Config{
-		Token: "your token",
+		Token: "",
 		Cron:  "0 0 0 * * ?",
 	}
 	return config
@@ -43,6 +44,8 @@ func LoadConfig() (Config, error) {
 	if err != nil {
 		return Config{}, err
 	}
-
+	if config.Token == "" {
+		panic(errors.New("token is empty"))
+	}
 	return config, nil
 }

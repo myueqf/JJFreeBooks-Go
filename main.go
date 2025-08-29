@@ -5,8 +5,8 @@ import (
 	"JJFreeBooks/config"
 	"fmt"
 	"os"
-	"time"
 	"strings"
+	"time"
 
 	"github.com/robfig/cron/v3"
 )
@@ -162,9 +162,9 @@ func DailyTasks(config config.Config) (bool, error) {
 			}
 
 			content += fmt.Sprintf("第%s章 %s\n%s\n\n",
-            	chapterContent.ChapterID,
-            	chapterContent.ChapterName,
-            	chapterContent.Content)
+				chapterContent.ChapterID,
+				chapterContent.ChapterName,
+				chapterContent.Content)
 			content = strings.ReplaceAll(content, "\n\n　　", "\n　　")
 			fmt.Printf("   ✅ 第%d章处理完成\n", j+1)
 

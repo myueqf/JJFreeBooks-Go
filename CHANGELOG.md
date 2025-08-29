@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/MEMLTS/JJFreeBooks-Go/compare/v0.3.0...v0.3.1) (2025-08-29)
+
+
+### 📦️ 构建系统
+
+* **release:** 优化构建流程并添加版本信息 ([e9c65e6](https://github.com/MEMLTS/JJFreeBooks-Go/commit/e9c65e6f5bd7842528d61afcd863142a6ffa250b))
+
 ## [0.3.0](https://github.com/MEMLTS/JJFreeBooks-Go/compare/v0.2.0...v0.3.0) (2025-08-29)
 
 

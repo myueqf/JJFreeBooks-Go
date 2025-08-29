@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"time"
+	"strings"
 
 	"github.com/robfig/cron/v3"
 )
@@ -160,7 +161,11 @@ func DailyTasks(config config.Config) (bool, error) {
 				return false, fmt.Errorf("获取章节内容失败: %v", err)
 			}
 
-			content += "第" + chapterContent.ChapterID + "章 " + chapterContent.ChapterName + "\n" + chapterContent.Content + "\n\n"
+			content += fmt.Sprintf("第%s章 %s\n%s\n\n",
+            	chapterContent.ChapterID,
+            	chapterContent.ChapterName,
+            	chapterContent.Content)
+			content = strings.ReplaceAll(content, "\n\n　　", "\n　　")
 			fmt.Printf("   ✅ 第%d章处理完成\n", j+1)
 
 			duration := time.Duration(config.Intervals.Chapter) * time.Millisecond

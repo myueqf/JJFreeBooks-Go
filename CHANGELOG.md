@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/MEMLTS/JJFreeBooks-Go/compare/v0.4.0...v0.5.0) (2025-08-29)
+
+
+### ✨ 新功能
+
+* **config:** 增加配置间隔时间功能 ([bb38291](https://github.com/MEMLTS/JJFreeBooks-Go/commit/bb38291447686d4daca788629746c7e24ea76f17))
+
 ## [0.4.0](https://github.com/MEMLTS/JJFreeBooks-Go/compare/v0.3.1...v0.4.0) (2025-08-29)
 
 

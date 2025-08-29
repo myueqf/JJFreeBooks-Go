@@ -15,7 +15,7 @@ type Config struct {
 func defaultConfig() Config {
 	var config = Config{
 		Token: "",
-		Cron:  "0 0 0 * * ?",
+		Cron:  "0 0 * * *",
 	}
 	return config
 }

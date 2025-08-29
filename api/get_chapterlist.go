@@ -79,7 +79,7 @@ type Draft struct {
 }
 
 func GetChapterList(novelId string) (ChapterListRoot, error) {
-	appUrl := fmt.Sprintf("https://app-cdn.jjwxc.com/androidapi/chapterList?novelId=%s", novelId)
+	appUrl := fmt.Sprintf("https://app-cdn.jjwxc.com/androidapi/chapterList?novelId=%s&more=0&whole=1", novelId)
 	res, err := http.Get(appUrl)
 	if err != nil {
 		return ChapterListRoot{}, err

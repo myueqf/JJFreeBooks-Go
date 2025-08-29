@@ -31,8 +31,8 @@ type ChapterDetail struct {
 	ShowSayBodyPage string `json:"show_saybody_page"`
 }
 
-func GetChapterContent(novelId, chapterId int) (ChapterDetail, error) {
-	appUrl := fmt.Sprintf("https://app-cdn.jjwxc.com/androidapi/chapterContent?novelId=%s&chapterId=%s", strconv.Itoa(novelId), strconv.Itoa(chapterId))
+func GetChapterContent(novelId, chapterId string) (ChapterDetail, error) {
+	appUrl := fmt.Sprintf("https://app-cdn.jjwxc.com/androidapi/chapterContent?novelId=%s&chapterId=%s", novelId, chapterId)
 	res, err := http.Get(appUrl)
 	if err != nil {
 		return ChapterDetail{}, err
@@ -88,9 +88,9 @@ func GetChapterContent(novelId, chapterId int) (ChapterDetail, error) {
 	return result, nil
 }
 
-func GetVIPChapterContent(token string, novelId, chapterId int) (ChapterDetail, error) {
+func GetVIPChapterContent(token, novelId, chapterId string) (ChapterDetail, error) {
 	timestamp := time.Now().UnixMilli()
-	ciphertextStr := fmt.Sprintf("%s:%s:%s:%s", strconv.Itoa(int(timestamp)), token, strconv.Itoa(novelId), strconv.Itoa(chapterId))
+	ciphertextStr := fmt.Sprintf("%s:%s:%s:%s", strconv.Itoa(int(timestamp)), token, novelId, chapterId)
 
 	ciphertext, err := crypto.DesEncrypt([]byte(ciphertextStr), []byte("KW8Dvm2N"), []byte("1ae2c94b"))
 	if err != nil {

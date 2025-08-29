@@ -30,39 +30,39 @@ jobs:
       - name: 🔨 构建项目
         run: |
           # Linux builds
-          GOOS=linux GOARCH=amd64 go build -v -o JJFreeBooks-linux-amd64
-          GOOS=linux GOARCH=arm64 go build -v -o JJFreeBooks-linux-arm64
-          GOOS=linux GOARCH=386 go build -v -o JJFreeBooks-linux-386
+          GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -v -o JJFreeBooks-linux-amd64
+          GOOS=linux GOARCH=arm64 go build -ldflags="-s -w" -v -o JJFreeBooks-linux-arm64
+          GOOS=linux GOARCH=386 go build -ldflags="-s -w" -v -o JJFreeBooks-linux-386
           
           # Windows builds
-          GOOS=windows GOARCH=amd64 go build -v -o JJFreeBooks-windows-amd64.exe
-          GOOS=windows GOARCH=arm64 go build -v -o JJFreeBooks-windows-arm64.exe
-          GOOS=windows GOARCH=386 go build -v -o JJFreeBooks-windows-386.exe
+          GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -v -o JJFreeBooks-windows-amd64.exe
+          GOOS=windows GOARCH=arm64 go build -ldflags="-s -w" -v -o JJFreeBooks-windows-arm64.exe
+          GOOS=windows GOARCH=386 go build -ldflags="-s -w" -v -o JJFreeBooks-windows-386.exe
           
           # macOS builds
-          GOOS=darwin GOARCH=amd64 go build -v -o JJFreeBooks-darwin-amd64
-          GOOS=darwin GOARCH=arm64 go build -v -o JJFreeBooks-darwin-arm64
+          GOOS=darwin GOARCH=amd64 go build -ldflags="-s -w" -v -o JJFreeBooks-darwin-amd64
+          GOOS=darwin GOARCH=arm64 go build -ldflags="-s -w" -v -o JJFreeBooks-darwin-arm64
 
           # FreeBSD builds
-          GOOS=freebsd GOARCH=amd64 go build -v -o JJFreeBooks-freebsd-amd64
-          GOOS=freebsd GOARCH=arm64 go build -v -o JJFreeBooks-freebsd-arm64
+          GOOS=freebsd GOARCH=amd64 go build -ldflags="-s -w" -v -o JJFreeBooks-freebsd-amd64
+          GOOS=freebsd GOARCH=arm64 go build -ldflags="-s -w" -v -o JJFreeBooks-freebsd-arm64
 
           # Other Linux architectures
-          GOOS=linux GOARCH=riscv64 go build -v -o JJFreeBooks-linux-riscv64
-          GOOS=linux GOARCH=ppc64 go build -v -o JJFreeBooks-linux-ppc64
+          GOOS=linux GOARCH=riscv64 go build -ldflags="-s -w" -v -o JJFreeBooks-linux-riscv64
+          GOOS=linux GOARCH=ppc64 go build -ldflags="-s -w" -v -o JJFreeBooks-linux-ppc64
 
           # DragonFly BSD
-          GOOS=dragonfly GOARCH=amd64 go build -v -o JJFreeBooks-dragonfly-amd64
+          GOOS=dragonfly GOARCH=amd64 go build -ldflags="-s -w" -v -o JJFreeBooks-dragonfly-amd64
 
           # Solaris
-          GOOS=solaris GOARCH=amd64 go build -v -o JJFreeBooks-solaris-amd64
+          GOOS=solaris GOARCH=amd64 go build -ldflags="-s -w" -v -o JJFreeBooks-solaris-amd64
 
           # AIX
-          GOOS=aix GOARCH=ppc64 go build -v -o JJFreeBooks-aix-ppc64
+          GOOS=aix GOARCH=ppc64 go build -ldflags="-s -w" -v -o JJFreeBooks-aix-ppc64
 
           # Plan9
-          GOOS=plan9 GOARCH=amd64 go build -v -o JJFreeBooks-plan9-amd64
-          GOOS=plan9 GOARCH=386 go build -v -o JJFreeBooks-plan9-386
+          GOOS=plan9 GOARCH=amd64 go build -ldflags="-s -w" -v -o JJFreeBooks-plan9-amd64
+          GOOS=plan9 GOARCH=386 go build -ldflags="-s -w" -v -o JJFreeBooks-plan9-386
 
       - name: 🚀 运行 release-please，生成版本和 Release Notes
         id: release

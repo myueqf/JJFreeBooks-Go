@@ -1,0 +1,98 @@
+name: 发布发行版
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions: write-all
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🧾 检出代码
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: ⚙️ 设置 Go 环境
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+          cache: true
+
+      - name: 📦 下载依赖
+        run: go mod download
+
+      - name: 🔨 构建项目
+        run: |
+          # Linux builds
+          GOOS=linux GOARCH=amd64 go build -v -o JJFreeBooks-linux-amd64
+          GOOS=linux GOARCH=arm64 go build -v -o JJFreeBooks-linux-arm64
+          GOOS=linux GOARCH=386 go build -v -o JJFreeBooks-linux-386
+          
+          # Windows builds
+          GOOS=windows GOARCH=amd64 go build -v -o JJFreeBooks-windows-amd64.exe
+          GOOS=windows GOARCH=arm64 go build -v -o JJFreeBooks-windows-arm64.exe
+          GOOS=windows GOARCH=386 go build -v -o JJFreeBooks-windows-386.exe
+          
+          # macOS builds
+          GOOS=darwin GOARCH=amd64 go build -v -o JJFreeBooks-darwin-amd64
+          GOOS=darwin GOARCH=arm64 go build -v -o JJFreeBooks-darwin-arm64
+
+          # FreeBSD builds
+          GOOS=freebsd GOARCH=amd64 go build -v -o JJFreeBooks-freebsd-amd64
+          GOOS=freebsd GOARCH=arm64 go build -v -o JJFreeBooks-freebsd-arm64
+
+          # Other Linux architectures
+          GOOS=linux GOARCH=riscv64 go build -v -o JJFreeBooks-linux-riscv64
+          GOOS=linux GOARCH=ppc64 go build -v -o JJFreeBooks-linux-ppc64
+
+          # DragonFly BSD
+          GOOS=dragonfly GOARCH=amd64 go build -v -o JJFreeBooks-dragonfly-amd64
+
+          # Solaris
+          GOOS=solaris GOARCH=amd64 go build -v -o JJFreeBooks-solaris-amd64
+
+          # AIX
+          GOOS=aix GOARCH=ppc64 go build -v -o JJFreeBooks-aix-ppc64
+
+          # Plan9
+          GOOS=plan9 GOARCH=amd64 go build -v -o JJFreeBooks-plan9-amd64
+          GOOS=plan9 GOARCH=386 go build -v -o JJFreeBooks-plan9-386
+
+      - name: 🚀 运行 release-please，生成版本和 Release Notes
+        id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          config-file: .release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+      - name: 🗃 上传构建产物到 GitHub Release
+        if: ${{ steps.release.outputs.release_created }}
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.release.outputs.tag_name }}
+          name: ${{ steps.release.outputs.tag_name }}
+          body: ${{ steps.release.outputs.release_notes }}
+          files: |
+            JJFreeBooks-linux-amd64
+            JJFreeBooks-linux-arm64
+            JJFreeBooks-linux-386
+            JJFreeBooks-windows-amd64.exe
+            JJFreeBooks-windows-arm64.exe
+            JJFreeBooks-windows-386.exe
+            JJFreeBooks-darwin-amd64
+            JJFreeBooks-darwin-arm64
+            JJFreeBooks-freebsd-amd64
+            JJFreeBooks-freebsd-arm64
+            JJFreeBooks-linux-riscv64
+            JJFreeBooks-linux-ppc64
+            JJFreeBooks-dragonfly-amd64
+            JJFreeBooks-solaris-amd64
+            JJFreeBooks-aix-ppc64
+            JJFreeBooks-plan9-amd64
+            JJFreeBooks-plan9-386

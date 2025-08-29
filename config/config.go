@@ -8,14 +8,23 @@ import (
 )
 
 type Config struct {
-	Token string `yaml:"token"`
-	Cron  string `yaml:"cron"`
+	Token     string    `yaml:"token"`
+	Cron      string    `yaml:"cron"`
+	Intervals Intervals `yaml:"intervals"`
+}
+type Intervals struct {
+	Chapter int `yaml:"chapter"`
+	Book    int `yaml:"novel"`
 }
 
 func defaultConfig() Config {
 	var config = Config{
 		Token: "",
 		Cron:  "0 0 * * *",
+		Intervals: Intervals{
+			Book:    500,
+			Chapter: 1000,
+		},
 	}
 	return config
 }

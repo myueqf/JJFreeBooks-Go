@@ -104,7 +104,6 @@ func DailyTasks(config config.Config) (bool, error) {
 
 		// 创建数据目录 📁
 		dataDir := "data"
-		fmt.Printf("📂 检查数据目录: %s\n", dataDir)
 		_, err = os.Stat(dataDir)
 		if os.IsNotExist(err) {
 			fmt.Printf("📁 创建数据目录: %s\n", dataDir)
@@ -118,7 +117,6 @@ func DailyTasks(config config.Config) (bool, error) {
 
 		// 创建小说文件 📄
 		bookDir := dataDir + "/" + book.NovelName + ".txt"
-		fmt.Printf("📄 检查小说文件: %s\n", bookDir)
 		_, err = os.Stat(bookDir)
 		if os.IsNotExist(err) {
 			fmt.Printf("🆕 创建新小说文件: %s\n", bookDir)
@@ -130,7 +128,8 @@ func DailyTasks(config config.Config) (bool, error) {
 			_ = file.Close()
 			fmt.Println("✅ 小说文件创建成功")
 		} else {
-			fmt.Println("📝 小说文件已存在，将追加内容")
+			fmt.Println("📝 小说文件已存在,跳过")
+			continue
 		}
 
 		// 获取章节列表 📑
@@ -144,17 +143,14 @@ func DailyTasks(config config.Config) (bool, error) {
 		fmt.Printf("✅ 共获取%d个章节\n", len(chapterList.Chapterlist))
 		var content string
 
-		// 处理每个章节 📖
 		for j, chapter := range chapterList.Chapterlist {
-			fmt.Printf("   📖 处理第%d章: %s (VIP: %v)\n", j+1, chapter.ChapterName, chapter.IsVip == 1)
+			fmt.Printf("   📖 处理第%d章: %s (VIP: %v)\n", j+1, chapter.ChapterName, chapter.IsVip != 0)
 
 			var chapterContent api.ChapterDetail
 			if chapter.IsVip == 0 {
-				// 免费章节 🆓
 				fmt.Printf("   🆓 获取免费章节内容...\n")
 				chapterContent, err = api.GetChapterContent(book.NovelID, chapter.ChapterID)
 			} else {
-				// VIP章节 💎
 				fmt.Printf("   💎 获取VIP章节内容...\n")
 				chapterContent, err = api.GetVIPChapterContent(config.Token, book.NovelID, chapter.ChapterID)
 			}
@@ -164,13 +160,12 @@ func DailyTasks(config config.Config) (bool, error) {
 				return false, fmt.Errorf("获取章节内容失败: %v", err)
 			}
 
-			// 拼接章节内容 ✍️
 			content += "第" + chapterContent.ChapterID + "章 " + chapterContent.ChapterName + "\n" + chapterContent.Content + "\n\n"
 			fmt.Printf("   ✅ 第%d章处理完成\n", j+1)
 
-			// 休眠 500ms 避免请求过于频繁 ⏸️
-			fmt.Printf("   ⏸️ 休眠500ms避免频繁请求...\n")
-			time.Sleep(time.Millisecond * 500)
+			duration := time.Duration(config.Intervals.Chapter) * time.Second
+			fmt.Printf("   ⏸️ 休眠 %s 避免频繁请求...\n", duration)
+			time.Sleep(duration)
 		}
 
 		// 写入文件 💾
@@ -183,9 +178,9 @@ func DailyTasks(config config.Config) (bool, error) {
 
 		fmt.Printf("✅ 《%s》处理完成!\n", book.NovelName)
 
-		// 休眠 2s 避免请求过于频繁 ⏸️
-		fmt.Printf("⏸️ 休眠2秒避免频繁请求...\n")
-		time.Sleep(time.Second * 2)
+		duration := time.Duration(config.Intervals.Chapter) * time.Second
+		fmt.Printf("⏸️ 休眠 %s 避免频繁请求...\n", duration)
+		time.Sleep(duration)
 	}
 
 	fmt.Println("——————————————")

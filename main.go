@@ -163,7 +163,7 @@ func DailyTasks(config config.Config) (bool, error) {
 			content += "第" + chapterContent.ChapterID + "章 " + chapterContent.ChapterName + "\n" + chapterContent.Content + "\n\n"
 			fmt.Printf("   ✅ 第%d章处理完成\n", j+1)
 
-			duration := time.Duration(config.Intervals.Chapter) * time.Second
+			duration := time.Duration(config.Intervals.Chapter) * time.Millisecond
 			fmt.Printf("   ⏸️ 休眠 %s 避免频繁请求...\n", duration)
 			time.Sleep(duration)
 		}
@@ -178,7 +178,7 @@ func DailyTasks(config config.Config) (bool, error) {
 
 		fmt.Printf("✅ 《%s》处理完成!\n", book.NovelName)
 
-		duration := time.Duration(config.Intervals.Chapter) * time.Second
+		duration := time.Duration(config.Intervals.Chapter) * time.Millisecond
 		fmt.Printf("⏸️ 休眠 %s 避免频繁请求...\n", duration)
 		time.Sleep(duration)
 	}

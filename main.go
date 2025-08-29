@@ -13,6 +13,7 @@ func main() {
 	fmt.Println("=======晋江免费小说下载器=======")
 	fmt.Println("项目开源地址: https://github.com/MEMLTS/JJFreeBooks-Go")
 	fmt.Println("项目作者: MapleLeaf")
+	fmt.Println("当前版本: v0.2.1")
 	fmt.Println("=============================")
 	fmt.Println("正在加载配置...")
 	appConfig, err := config.LoadConfig()

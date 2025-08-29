@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.3.0](https://github.com/MEMLTS/JJFreeBooks-Go/compare/v0.2.0...v0.3.0) (2025-08-29)
+
+
+### ✨ 新功能
+
+* 添加软件版本号 ([e99578f](https://github.com/MEMLTS/JJFreeBooks-Go/commit/e99578f84f8d7b7b4048731de83ac57e359bb8ac))
+
+
+### 🐛 错误修复
+
+* 移除主界面中的版本号显示 ([8729b6e](https://github.com/MEMLTS/JJFreeBooks-Go/commit/8729b6ef9b2de43d7e8c1aa63c41c27b6eee7b43))
+
+
+### 📦️ 构建系统
+
+* 优化构建过程并添加 LDFLAGS 参数 ([9e42720](https://github.com/MEMLTS/JJFreeBooks-Go/commit/9e4272016367105f6dfd3e1c27afb6cc200627af))
+
 ## [0.2.0](https://github.com/MEMLTS/JJFreeBooks-Go/compare/v0.1.0...v0.2.0) (2025-08-29)
 
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.1](https://github.com/MEMLTS/JJFreeBooks-Go/compare/v0.6.0...v0.6.1) (2025-08-29)
+
+
+### 🐛 错误修复
+
+* 删除正文中的空行～ ([0438711](https://github.com/MEMLTS/JJFreeBooks-Go/commit/04387116c594d20ede637ddb2cf1381499dd48cc))
+
 ## [0.6.0](https://github.com/MEMLTS/JJFreeBooks-Go/compare/v0.5.0...v0.6.0) (2025-08-29)
 
 

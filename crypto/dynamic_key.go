@@ -10,6 +10,8 @@ type KeyIv struct {
 	Iv  []byte
 }
 
+// DynamicDecrypt 动态密钥解密函数，匹配 JavaScript 实现
+// 返回解密后的内容、密钥和IV信息
 func DynamicDecrypt(context, accessKey, keystring string) (string, KeyIv, error) {
 	accessKeyLen := len(accessKey)
 	v6 := accessKey[accessKeyLen-1]
@@ -36,24 +38,34 @@ func DynamicDecrypt(context, accessKey, keystring string) (string, KeyIv, error)
 		v38 = context[:12]
 		dest = context[12:]
 	}
-	// 生成 key = MD5(v43 + v38).hex[0:16] -> 取前 8 字节（16 hex 字符）
+
+	// 生成密钥和IV
+	// JavaScript: CryptoJS.MD5(v43 + v38).toString().slice(0, 8)
 	md5Hash1 := md5.Sum([]byte(v43 + v38))
-	keyHex := hex.EncodeToString(md5Hash1[:])[:16] // 取前 16 个 hex 字符（8 字节）
+	keyStr := hex.EncodeToString(md5Hash1[:])[:8] // 取前8个字符作为UTF8字符串
 
-	// 生成 iv = MD5(v38).hex[0:16] -> 取前 8 字节
+	// JavaScript: CryptoJS.MD5(v38).toString().slice(0, 8)
 	md5Hash2 := md5.Sum([]byte(v38))
-	ivHex := hex.EncodeToString(md5Hash2[:])[:16]
+	ivStr := hex.EncodeToString(md5Hash2[:])[:8] // 取前8个字符作为UTF8字符串
 
-	key, err := hex.DecodeString(keyHex)
-	if err != nil {
-		return "", KeyIv{}, err
-	}
-	iv, err := hex.DecodeString(ivHex)
-	if err != nil {
-		return "", KeyIv{}, err
-	}
+	// 转换为字节数组（UTF8编码，不是hex解码）
+	key := []byte(keyStr)
+	iv := []byte(ivStr)
+
 	return dest, KeyIv{
 		Key: key,
 		Iv:  iv,
-	}, err
+	}, nil
+}
+
+// DynamicDecryptWithContent 执行完整的动态解密过程
+// 包括密钥生成和DES解密
+func DynamicDecryptWithContent(context, accessKey, keystring string) (string, error) {
+	dest, keyIv, err := DynamicDecrypt(context, accessKey, keystring)
+	if err != nil {
+		return "", err
+	}
+
+	// 使用生成的密钥和IV进行DES解密
+	return DesDecrypt(dest, keyIv.Key, keyIv.Iv)
 }

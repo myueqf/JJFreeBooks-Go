@@ -2,7 +2,6 @@ package api
 
 import (
 	"JJFreeBooks/crypto"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -13,6 +12,8 @@ import (
 )
 
 type ChapterDetail struct {
+	Code            int    `json:"code"`    // API响应代码
+	Message         string `json:"message"` // 响应消息
 	ChapterID       string `json:"chapterId"`
 	ChapterName     string `json:"chapterName"`
 	ChapterIntro    string `json:"chapterIntro"`
@@ -46,11 +47,53 @@ func GetChapterContent(novelId, chapterId int) (ChapterDetail, error) {
 	if err != nil {
 		return ChapterDetail{}, err
 	}
+
 	var result ChapterDetail
 	err = json.Unmarshal(body, &result)
 	if err != nil {
 		return ChapterDetail{}, err
 	}
+
+	// 检查是否为VIP章节错误响应 (基于JavaScript逻辑)
+	if result.Code == 1004 {
+		fmt.Printf("章节 %d 返回1004响应，可能是限免VIP章节\n", chapterId)
+
+		// 如果有加密内容，尝试解密
+		if result.Content != "" {
+			fmt.Printf("章节 %d 检测到加密内容: \"%s\"\n", chapterId, result.Content)
+
+			// 尝试固定密钥解密（限免VIP章节通常用这种方式）
+			decrypted, err := crypto.DesDecryptString(result.Content, "KW8Dvm2N", "1ae2c94b")
+			if err == nil && decrypted != "" {
+				fmt.Printf("章节 %d 固定密钥解密成功，内容长度: %d\n", chapterId, len(decrypted))
+				result.Content = decrypted
+				return result, nil
+			} else {
+				fmt.Printf("章节 %d 固定密钥解密失败\n", chapterId)
+				result.Content = fmt.Sprintf("<VIP章节解密失败，原始内容: %s>", result.Content)
+			}
+		} else {
+			// 没有内容的1004响应，可能是无权限
+			fmt.Printf("<该章节为VIP章节，需要购买才能阅读>")
+			result.Content = "<该章节为VIP章节，需要购买才能阅读>"
+		}
+	}
+
+	// 处理正常响应或明文VIP内容
+	if result.Content != "" {
+		// 检查内容是否为加密内容（长度>30且不包含中文字符）
+		if len(result.Content) > 30 && !ContainsChinese(result.Content) {
+			fmt.Printf("章节 %d 检测到可能的加密内容，尝试解密\n", chapterId)
+			decrypted, err := crypto.DesDecryptString(result.Content, "KW8Dvm2N", "1ae2c94b")
+			if err == nil && decrypted != "" && ContainsChinese(decrypted) {
+				fmt.Printf("章节 %d 解密成功，最终内容长度: %d\n", chapterId, len(decrypted))
+				result.Content = decrypted
+			} else {
+				fmt.Printf("章节 %d 解密失败，使用原始内容\n", chapterId)
+			}
+		}
+	}
+
 	return result, nil
 }
 
@@ -63,7 +106,7 @@ func GetVIPChapterContent(token string, novelId, chapterId int) (ChapterDetail, 
 		return ChapterDetail{}, err
 	}
 	escapedChannelBody := url.QueryEscape(ciphertext)
-	fmt.Println(escapedChannelBody)
+
 	appUrl := fmt.Sprintf("https://android.jjwxc.net/androidapi/chapterContent?readState=readahead&versionCode=454&sign=%s", escapedChannelBody)
 
 	req, err := http.NewRequest("GET", appUrl, nil)
@@ -95,45 +138,93 @@ func GetVIPChapterContent(token string, novelId, chapterId int) (ChapterDetail, 
 	if err != nil {
 		return ChapterDetail{}, err
 	}
+
 	var result ChapterDetail
-	var dest string
-	var keyIv = crypto.KeyIv{}
-	var key, iv []byte
 	accesskey := res.Header.Get("accesskey")
 	keystring := res.Header.Get("keystring")
 
-	if json.Valid(body) {
-		var r map[string]interface{}
-		err = json.Unmarshal(body, &r)
-		if err != nil {
-			return ChapterDetail{}, err
-		}
-		fmt.Println(r)
-		if content, ok := r["content"].(string); ok {
-			dest = content
-		} else {
-			return ChapterDetail{}, fmt.Errorf("字段 'content' 不存在或不是字符串")
-		}
-	} else {
-		dest, keyIv, err = crypto.DynamicDecrypt(string(body), accesskey, keystring)
-		fmt.Println(dest)
-		if err != nil {
-			return ChapterDetail{}, err
-		}
-	}
-	key = keyIv.Key
-	iv = keyIv.Iv
-	fmt.Println(hex.EncodeToString(key))
-	fmt.Println(hex.EncodeToString(iv))
+	// 检查是否需要动态解密
+	responseText := string(body)
+	isPay := !json.Valid(body) || !containsContent(responseText)
 
-	var data string
-	data, err = crypto.DesDecrypt(dest, key, iv)
-	if err != nil {
-		return ChapterDetail{}, err
+	fmt.Printf("章节 %d 解密状态: isPay=%t, hasAccesskey=%t, hasKeystring=%t\n",
+		chapterId, isPay, accesskey != "", keystring != "")
+
+	if isPay && accesskey != "" && keystring != "" {
+		// 使用动态解密
+		fmt.Printf("章节 %d 使用动态密钥解密整个响应体\n", chapterId)
+		decrypted, err := crypto.DynamicDecryptWithContent(responseText, accesskey, keystring)
+		if err != nil {
+			return ChapterDetail{}, fmt.Errorf("动态解密失败: %w", err)
+		}
+
+		// 尝试解析为JSON
+		if err := json.Unmarshal([]byte(decrypted), &result); err == nil {
+			// 检查是否需要进一步解密content字段 (基于JavaScript逻辑)
+			if result.Content != "" && len(result.Content) > 30 {
+				fmt.Printf("章节 %d 动态解密后内容长度>30，尝试固定密钥解密\n", chapterId)
+				finalContent, err := crypto.DesDecryptString(result.Content, "KW8Dvm2N", "1ae2c94b")
+				if err == nil && finalContent != "" {
+					fmt.Printf("章节 %d 固定密钥解密成功，最终内容长度: %d\n", chapterId, len(finalContent))
+					result.Content = finalContent
+				} else {
+					fmt.Printf("章节 %d 固定密钥解密失败，使用动态解密结果\n", chapterId)
+				}
+			}
+			return result, nil
+		}
+
+		// 如果不是JSON，可能是纯文本，尝试直接解密
+		if len(decrypted) > 30 {
+			finalContent, err := crypto.DesDecryptString(decrypted, "KW8Dvm2N", "1ae2c94b")
+			if err == nil && finalContent != "" {
+				result.Content = finalContent
+				return result, nil
+			}
+		}
+		result.Content = decrypted
+		return result, nil
 	}
-	err = json.Unmarshal([]byte(data), &result)
-	if err != nil {
-		return ChapterDetail{}, err
+
+	// 处理普通响应或直接加密的content
+	if json.Valid(body) {
+		if err := json.Unmarshal(body, &result); err != nil {
+			return ChapterDetail{}, err
+		}
+
+		// 检查content是否需要解密
+		if result.Content != "" && len(result.Content) > 30 && !ContainsChinese(result.Content) {
+			fmt.Printf("章节 %d 检测到可能的加密内容，尝试解密\n", chapterId)
+			decrypted, err := crypto.DesDecryptString(result.Content, "KW8Dvm2N", "1ae2c94b")
+			if err == nil && decrypted != "" && ContainsChinese(decrypted) {
+				fmt.Printf("章节 %d 解密成功，最终内容长度: %d\n", chapterId, len(decrypted))
+				result.Content = decrypted
+			} else {
+				fmt.Printf("章节 %d 解密失败，使用原始内容\n", chapterId)
+			}
+		}
+		return result, nil
 	}
-	return result, nil
+
+	return ChapterDetail{}, fmt.Errorf("无法处理响应格式")
+}
+
+// containsContent 检查JSON字符串是否包含content字段
+func containsContent(jsonStr string) bool {
+	var temp map[string]interface{}
+	if err := json.Unmarshal([]byte(jsonStr), &temp); err != nil {
+		return false
+	}
+	_, exists := temp["content"]
+	return exists
+}
+
+// ContainsChinese 检查字符串是否包含中文字符
+func ContainsChinese(text string) bool {
+	for _, r := range text {
+		if r >= 0x4e00 && r <= 0x9fa5 {
+			return true
+		}
+	}
+	return false
 }

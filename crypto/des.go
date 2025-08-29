@@ -89,10 +89,10 @@ func DesEncrypt(plainText, key, iv []byte) (string, error) {
 	mode := cipher.NewCBCEncrypter(block, iv)
 	mode.CryptBlocks(cipherText, plainText) // 执行加密
 
-	return base64.StdEncoding.EncodeToString(cipherText), nil
+	return base64.StdEncoding.EncodeToString(cipherText), nil // 使用 DES 算法解密密文（Base64 编码 + CBC 模式 + PKCS5 去填充）。
 }
 
-// DesDecrypt 使用 DES 算法解密密文（Base64 编码 + CBC 模式 + PKCS5 去填充）。
+// DesDecrypt 支持字符串形式的 key 和 iv（匹配 JavaScript 实现）
 //
 // 参数：
 //   - ciphertextStr: 经过 Base64 编码的密文字符串
@@ -132,4 +132,11 @@ func DesDecrypt(ciphertextStr string, key, iv []byte) (string, error) {
 	}
 
 	return string(unpaddedData), nil
+}
+
+// DesDecryptString 使用字符串形式的 key 和 iv 进行 DES 解密（匹配 JavaScript 实现）
+func DesDecryptString(ciphertextStr, keyStr, ivStr string) (string, error) {
+	key := []byte(keyStr)
+	iv := []byte(ivStr)
+	return DesDecrypt(ciphertextStr, key, iv)
 }

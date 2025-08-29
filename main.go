@@ -10,14 +10,19 @@ import (
 )
 
 func main() {
+	fmt.Println("=======晋江免费小说下载器=======")
+	fmt.Println("项目开源地址: https://github.com/MEMLTS/JJFreeBooks-Go")
+	fmt.Println("项目作者: MapleLeaf")
+	fmt.Println("===========================")
+	fmt.Println("正在加载配置...")
 	appConfig, err := config.LoadConfig()
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("======加载配置成功======")
+	fmt.Println("========加载配置成功========")
 	fmt.Printf("Token:%s\n", appConfig.Token)
 	fmt.Printf("Cron:%s\n", appConfig.Cron)
-	fmt.Println("======================")
+	fmt.Println("==========================")
 	c := cron.New()
 	_, err = c.AddFunc(appConfig.Cron, func() {
 		_, err := DailyTasks(appConfig)

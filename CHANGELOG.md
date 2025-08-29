@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/MEMLTS/JJFreeBooks-Go/compare/v0.3.1...v0.4.0) (2025-08-29)
+
+
+### ✨ 新功能
+
+* 优化程序结构和输出信息 ([3dedb7a](https://github.com/MEMLTS/JJFreeBooks-Go/commit/3dedb7a0db1a6b02b479c69424d38b46b08fa031))
+
 ## [0.3.1](https://github.com/MEMLTS/JJFreeBooks-Go/compare/v0.3.0...v0.3.1) (2025-08-29)
 
 

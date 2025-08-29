@@ -6,7 +6,9 @@ on:
     branches:
       - main
 
-permissions: write-all
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
   release:
@@ -14,12 +16,12 @@ jobs:
 
     steps:
       - name: 🧾 检出代码
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: ⚙️ 设置 Go 环境
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version: '1.21'
           cache: true
@@ -27,49 +29,52 @@ jobs:
       - name: 📦 下载依赖
         run: go mod download
 
-      - name: 🔨 构建项目
-        run: |
-          # Linux builds
-          GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -v -o JJFreeBooks-linux-amd64
-          GOOS=linux GOARCH=arm64 go build -ldflags="-s -w" -v -o JJFreeBooks-linux-arm64
-          GOOS=linux GOARCH=386 go build -ldflags="-s -w" -v -o JJFreeBooks-linux-386
-          
-          # Windows builds
-          GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -v -o JJFreeBooks-windows-amd64.exe
-          GOOS=windows GOARCH=arm64 go build -ldflags="-s -w" -v -o JJFreeBooks-windows-arm64.exe
-          GOOS=windows GOARCH=386 go build -ldflags="-s -w" -v -o JJFreeBooks-windows-386.exe
-          
-          # macOS builds
-          GOOS=darwin GOARCH=amd64 go build -ldflags="-s -w" -v -o JJFreeBooks-darwin-amd64
-          GOOS=darwin GOARCH=arm64 go build -ldflags="-s -w" -v -o JJFreeBooks-darwin-arm64
-
-          # FreeBSD builds
-          GOOS=freebsd GOARCH=amd64 go build -ldflags="-s -w" -v -o JJFreeBooks-freebsd-amd64
-          GOOS=freebsd GOARCH=arm64 go build -ldflags="-s -w" -v -o JJFreeBooks-freebsd-arm64
-
-          # Other Linux architectures
-          GOOS=linux GOARCH=riscv64 go build -ldflags="-s -w" -v -o JJFreeBooks-linux-riscv64
-          GOOS=linux GOARCH=ppc64 go build -ldflags="-s -w" -v -o JJFreeBooks-linux-ppc64
-
-          # DragonFly BSD
-          GOOS=dragonfly GOARCH=amd64 go build -ldflags="-s -w" -v -o JJFreeBooks-dragonfly-amd64
-
-          # Solaris
-          GOOS=solaris GOARCH=amd64 go build -ldflags="-s -w" -v -o JJFreeBooks-solaris-amd64
-
-          # AIX
-          GOOS=aix GOARCH=ppc64 go build -ldflags="-s -w" -v -o JJFreeBooks-aix-ppc64
-
-          # Plan9
-          GOOS=plan9 GOARCH=amd64 go build -ldflags="-s -w" -v -o JJFreeBooks-plan9-amd64
-          GOOS=plan9 GOARCH=386 go build -ldflags="-s -w" -v -o JJFreeBooks-plan9-386
-
-      - name: 🚀 运行 release-please，生成版本和 Release Notes
+      - name: 🚀 运行 release-please 获取版本号
         id: release
         uses: googleapis/release-please-action@v4
         with:
           config-file: .release-please-config.json
           manifest-file: .release-please-manifest.json
+
+      - name: 🔨 构建所有平台二进制
+        env:
+          VERSION: ${{ steps.release.outputs.tag_name }}
+          COMMIT: ${{ github.sha }}
+          BUILT_AT: ${{ toJson(github.event.repository.pushed_at) }}
+        run: |
+          declare -a GOOS_ARRAY=("linux" "windows" "darwin" "freebsd" "dragonfly" "solaris" "aix" "plan9")
+          declare -a GOARCH_ARRAY=("amd64" "arm64" "386" "ppc64" "riscv64")
+
+          mkdir -p dist
+          BUILT_AT_ISO=$(date -u +%Y-%m-%d_%H:%M:%S)
+
+          for GOOS in "${GOOS_ARRAY[@]}"; do
+            for GOARCH in "${GOARCH_ARRAY[@]}"; do
+              case "${GOOS}/${GOARCH}" in
+                "windows/amd64"|"windows/arm64"|"windows/386"|"linux/amd64"|"linux/arm64"|"linux/386"|"darwin/amd64"|"darwin/arm64"|"freebsd/amd64"|"freebsd/arm64"|"linux/riscv64"|"linux/ppc64"|"dragonfly/amd64"|"solaris/amd64"|"aix/ppc64"|"plan9/amd64"|"plan9/386")
+                  ;;
+                *)
+                  echo "跳过不支持的组合: ${GOOS}/${GOARCH}"
+                  continue
+                  ;;
+              esac
+
+              echo "构建: ${GOOS}/${GOARCH}"
+              CGO_ENABLED=0 GOOS=${GOOS} GOARCH=${GOARCH} go build \
+                -ldflags="
+                  -s -w
+                  -X main.version=${VERSION}
+                  -X main.commit=${COMMIT}
+                  -X main.date=${BUILT_AT_ISO}" \
+                -o "dist/JJFreeBooks-${GOOS}-${GOARCH}${GOOS:+.exe}" \
+                .
+
+              if [ $? -ne 0 ]; then
+                echo "构建失败: ${GOOS}/${GOARCH}"
+                exit 1
+              fi
+            done
+          done
 
       - name: 🗃 上传构建产物到 GitHub Release
         if: ${{ steps.release.outputs.release_created }}
@@ -78,21 +83,4 @@ jobs:
           tag_name: ${{ steps.release.outputs.tag_name }}
           name: ${{ steps.release.outputs.tag_name }}
           body: ${{ steps.release.outputs.release_notes }}
-          files: |
-            JJFreeBooks-linux-amd64
-            JJFreeBooks-linux-arm64
-            JJFreeBooks-linux-386
-            JJFreeBooks-windows-amd64.exe
-            JJFreeBooks-windows-arm64.exe
-            JJFreeBooks-windows-386.exe
-            JJFreeBooks-darwin-amd64
-            JJFreeBooks-darwin-arm64
-            JJFreeBooks-freebsd-amd64
-            JJFreeBooks-freebsd-arm64
-            JJFreeBooks-linux-riscv64
-            JJFreeBooks-linux-ppc64
-            JJFreeBooks-dragonfly-amd64
-            JJFreeBooks-solaris-amd64
-            JJFreeBooks-aix-ppc64
-            JJFreeBooks-plan9-amd64
-            JJFreeBooks-plan9-386
+          files: dist/*

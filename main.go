@@ -5,14 +5,23 @@ import (
 	"JJFreeBooks/config"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/robfig/cron/v3"
+)
+
+var (
+	version = "dev"     // 默认开发版
+	commit  = "none"    // Git 提交哈希
+	date    = "unknown" // 构建时间
 )
 
 func main() {
 	fmt.Println("=======晋江免费小说下载器=======")
 	fmt.Println("项目开源地址: https://github.com/MEMLTS/JJFreeBooks-Go")
 	fmt.Println("项目作者: MapleLeaf")
+	fmt.Println("版本:", version)
+	fmt.Println("构建信息:", commit, "@", date)
 	fmt.Println("=============================")
 	fmt.Println("正在加载配置...")
 	appConfig, err := config.LoadConfig()
@@ -87,8 +96,12 @@ func DailyTasks(config config.Config) (bool, error) {
 				return false, err
 			}
 			content += "第" + chapterContent.ChapterID + "章" + chapterContent.ChapterName + "\n" + chapterContent.Content + "\n"
+			time.Sleep(time.Millisecond * 500)
+			// 休眠 500ms
 		}
 		err = os.WriteFile(bookDir, []byte(content), 0644)
+		time.Sleep(time.Second * 2)
+		// 休眠 2s
 	}
 	return true, nil
 }

@@ -37,16 +37,17 @@ jobs:
           manifest-file: .release-please-manifest.json
 
       - name: 🔨 构建所有平台二进制
+        if: ${{ steps.release.outputs.release_created }}
         env:
           VERSION: ${{ steps.release.outputs.tag_name }}
           COMMIT: ${{ github.sha }}
-          BUILT_AT: ${{ toJson(github.event.repository.pushed_at) }}
         run: |
           declare -a GOOS_ARRAY=("linux" "windows" "darwin" "freebsd" "dragonfly" "solaris" "aix" "plan9")
           declare -a GOARCH_ARRAY=("amd64" "arm64" "386" "ppc64" "riscv64")
 
           mkdir -p dist
-          BUILT_AT_ISO=$(date -u +%Y-%m-%d_%H:%M:%S)
+
+          BUILT_AT=$(date -u +%Y-%m-%d_%H:%M:%S)
 
           for GOOS in "${GOOS_ARRAY[@]}"; do
             for GOARCH in "${GOARCH_ARRAY[@]}"; do
@@ -59,22 +60,31 @@ jobs:
                   ;;
               esac
 
-              echo "构建: ${GOOS}/${GOARCH}"
+              BINARY_NAME="JJFreeBooks-${GOOS}-${GOARCH}"
+              if [ "$GOOS" = "windows" ]; then
+                BINARY_NAME="${BINARY_NAME}.exe"
+              fi
+
+              echo "📦 正在构建: ${GOOS}/${GOARCH} -> ${BINARY_NAME}"
+
               CGO_ENABLED=0 GOOS=${GOOS} GOARCH=${GOARCH} go build \
                 -ldflags="
-                  -s -w
-                  -X main.version=${VERSION}
-                  -X main.commit=${COMMIT}
-                  -X main.date=${BUILT_AT_ISO}" \
-                -o "dist/JJFreeBooks-${GOOS}-${GOARCH}${GOOS:+.exe}" \
+                  -s -w \
+                  -X main.version=${VERSION} \
+                  -X main.commit=${COMMIT} \
+                  -X main.date=${BUILT_AT}" \
+                -o "dist/${BINARY_NAME}" \
                 .
 
               if [ $? -ne 0 ]; then
-                echo "构建失败: ${GOOS}/${GOARCH}"
+                echo "❌ 构建失败: ${GOOS}/${GOARCH}"
                 exit 1
               fi
             done
           done
+
+          echo "✅ 构建完成，产物列表："
+          ls -la dist/
 
       - name: 🗃 上传构建产物到 GitHub Release
         if: ${{ steps.release.outputs.release_created }}

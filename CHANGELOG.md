@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.0](https://github.com/MEMLTS/JJFreeBooks-Go/compare/v0.5.0...v0.6.0) (2025-08-29)
+
+
+### ✨ 新功能
+
+* **config:** 添加章节抓取间隔配置并调整时间单位 ([dd9f75a](https://github.com/MEMLTS/JJFreeBooks-Go/commit/dd9f75a264f2d6ab727a977753cc114f1dec05c1))
+
 ## [0.5.0](https://github.com/MEMLTS/JJFreeBooks-Go/compare/v0.4.0...v0.5.0) (2025-08-29)
 
 

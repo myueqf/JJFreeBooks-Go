@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.6.2](https://github.com/MEMLTS/JJFreeBooks-Go/compare/v0.6.1...v0.6.2) (2025-08-30)
+
+
+### 🐛 错误修复
+
+* **config:** 添加 cron 配置校验 ([954c14b](https://github.com/MEMLTS/JJFreeBooks-Go/commit/954c14b178c7a012d48ff7e13d2a7063ffd14c91))
+* 修复命名错误 ([61a0d70](https://github.com/MEMLTS/JJFreeBooks-Go/commit/61a0d70053a5d77098d2ec6a95114ee0b2beb86b))
+
+
+### 📝 文档更新
+
+* 修正 README 中书籍抓取间隔时间的单位 ([1bc8efc](https://github.com/MEMLTS/JJFreeBooks-Go/commit/1bc8efc9d4df08eb3a5037ea3d7886047dec4a40))
+
+
+### ♻️ 代码重构
+
+* 优化小说章节处理和格式化逻辑 ([1f88266](https://github.com/MEMLTS/JJFreeBooks-Go/commit/1f882664a10ecceb19fcd2639ae0c35d47a2ac17))
+
 ## [0.6.1](https://github.com/MEMLTS/JJFreeBooks-Go/compare/v0.6.0...v0.6.1) (2025-08-29)
 
 

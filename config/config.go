@@ -56,5 +56,8 @@ func LoadConfig() (Config, error) {
 	if config.Token == "" {
 		panic(errors.New("token is empty"))
 	}
+	if config.Cron == "" {
+		panic(errors.New("cron is empty"))
+	}
 	return config, nil
 }

@@ -3,7 +3,10 @@ package main
 import (
 	"JJFreeBooks/api"
 	"JJFreeBooks/config"
+	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"strings"
 	"time"
@@ -27,6 +30,37 @@ func main() {
 	fmt.Println("🏷️ 版本:", version)
 	fmt.Println("🔧 构建信息:", commit, "@", date)
 	fmt.Println("⏰ 启动时间:", time.Now().Format("2006-01-02 15:04:05"))
+	fmt.Println("=====================================")
+
+	fmt.Println("🔧 最新版本检查中...")
+	latestVersion, err := http.Get("https://api.github.com/repos/MEMLTS/JJFreeBooks-Go/releases/latest")
+	if err != nil {
+		fmt.Println("❌ 获取最新版本失败:", err)
+	}
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			return
+		}
+	}(latestVersion.Body)
+	if latestVersion.StatusCode != http.StatusOK {
+		fmt.Println("❌ 获取最新版本失败:", latestVersion.Status)
+	}
+	var latestVersionInfo struct {
+		TagName string `json:"tag_name"`
+	}
+	body, err := io.ReadAll(latestVersion.Body)
+	err = json.Unmarshal(body, &latestVersionInfo)
+	if err != nil {
+		fmt.Println("❌ 获取最新版本失败:", err)
+	}
+	if latestVersionInfo.TagName != "" && latestVersionInfo.TagName != version {
+		fmt.Println("⚠️  当前版本可能不是最新版本，请检查更新！")
+		fmt.Printf("⚠️  最新版本: %s\n", latestVersionInfo.TagName)
+	}
+	if latestVersionInfo.TagName == version {
+		fmt.Println("✅ 当前版本为最新版本")
+	}
 	fmt.Println("=====================================")
 
 	// 加载配置 🗂️

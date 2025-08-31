@@ -86,6 +86,13 @@ jobs:
           echo "✅ 构建完成，产物列表："
           ls -la dist/
 
+      - name: 📦 上传构建产物到 Actions 临时存储
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifact
+          path: dist/
+          retention-days: 7
+
       - name: 🗃 上传构建产物到 GitHub Release
         if: ${{ steps.release.outputs.release_created }}
         uses: softprops/action-gh-release@v1

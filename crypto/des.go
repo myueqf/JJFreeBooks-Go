@@ -115,6 +115,7 @@ func DesDecrypt(ciphertextStr string, key, iv []byte) (string, error) {
 	}
 	ciphertext, err := base64.StdEncoding.DecodeString(ciphertextStr)
 	if err != nil {
+		fmt.Printf("base64解码失败，原始数据: %s", ciphertextStr)
 		return "", fmt.Errorf("base64解码失败：%w", err)
 	}
 
@@ -128,6 +129,9 @@ func DesDecrypt(ciphertextStr string, key, iv []byte) (string, error) {
 
 	unpaddedData, err := pkcs5UnPadding(decrypted)
 	if err != nil {
+		fmt.Printf("PKCS5 去填充失败，原始数据: %s", string(decrypted))
+		fmt.Printf("key: %s", string(key))
+		fmt.Printf("iv: %s", string(iv))
 		return "", fmt.Errorf("PKCS5 去填充失败：%w", err)
 	}
 

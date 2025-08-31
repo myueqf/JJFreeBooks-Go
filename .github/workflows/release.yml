@@ -37,7 +37,6 @@ jobs:
           manifest-file: .release-please-manifest.json
 
       - name: 🔨 构建所有平台二进制
-        if: ${{ steps.release.outputs.release_created }}
         env:
           VERSION: ${{ steps.release.outputs.tag_name }}
           COMMIT: ${{ github.sha }}
@@ -90,7 +89,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-artifact
-          path: dist/
+          path: dist/*
           retention-days: 7
 
       - name: 🗃 上传构建产物到 GitHub Release

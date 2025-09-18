@@ -12,8 +12,8 @@ import (
 )
 
 type ChapterDetail struct {
-	Code            int    `json:"code"`    // API响应代码
-	Message         string `json:"message"` // 响应消息
+	Code            int    `json:"code"`
+	Message         string `json:"message"`
 	ChapterID       string `json:"chapterId"`
 	ChapterName     string `json:"chapterName"`
 	ChapterIntro    string `json:"chapterIntro"`
@@ -64,7 +64,7 @@ func GetChapterContent(novelId, chapterId string) (ChapterDetail, error) {
 				result.Content = decrypted
 				return result, nil
 			} else {
-				fmt.Printf("章节 %d 固定密钥解密失败\n", chapterId)
+				fmt.Printf("章节 %s 固定密钥解密失败\n", chapterId)
 				result.Content = fmt.Sprintf("<VIP章节解密失败，原始内容: %s>", result.Content)
 			}
 		} else {
@@ -80,7 +80,7 @@ func GetChapterContent(novelId, chapterId string) (ChapterDetail, error) {
 			if err == nil && decrypted != "" && ContainsChinese(decrypted) {
 				result.Content = decrypted
 			} else {
-				fmt.Printf("章节 %d 解密失败，使用原始内容\n", chapterId)
+				fmt.Printf("章节 %s 解密失败，使用原始内容\n", chapterId)
 			}
 		}
 	}
@@ -153,7 +153,7 @@ func GetVIPChapterContent(token, novelId, chapterId string) (ChapterDetail, erro
 				if err == nil && finalContent != "" {
 					result.Content = finalContent
 				} else {
-					fmt.Printf("章节 %d 固定密钥解密失败，使用动态解密结果\n", chapterId)
+					fmt.Printf("章节 %s 固定密钥解密失败，使用动态解密结果\n", chapterId)
 				}
 			}
 			return result, nil
@@ -183,7 +183,7 @@ func GetVIPChapterContent(token, novelId, chapterId string) (ChapterDetail, erro
 			if err == nil && decrypted != "" && ContainsChinese(decrypted) {
 				result.Content = decrypted
 			} else {
-				fmt.Printf("章节 %d 解密失败，使用原始内容\n", chapterId)
+				fmt.Printf("章节 %s 解密失败，使用原始内容\n", chapterId)
 			}
 		}
 		return result, nil

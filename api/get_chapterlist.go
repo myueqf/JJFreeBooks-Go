@@ -29,7 +29,7 @@ type ChapterListRoot struct {
 	Issign              bool      `json:"issign"`
 	EditorBalance       string    `json:"editorbalance"`
 	JjBalance           string    `json:"jjBalance"`
-	ExtraChapterMeassge string    `json:"extraChapterMeassge"`
+	ExtraChapterMessage string    `json:"extraChapterMeassge"`
 	VipShortFlag        string    `json:"vip_short_flag"`
 	MonthRightEndTime   string    `json:"month_right_end_time"`
 	MonthRightTip       string    `json:"month_right_tip"`

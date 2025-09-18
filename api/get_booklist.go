@@ -35,14 +35,14 @@ type NovelData struct {
 	Local           string `json:"local"`
 	LocalImg        string `json:"localImg"`
 	NovelIntroshort string `json:"novelIntroshort"`
-	NovelIntroShort string `json:"novelIntroShort"` // 注意：JSON 中有两个相似的字段
+	NovelIntroShort string `json:"novelIntroShort"` // ?
 	NovelIntro      string `json:"novelIntro"`
 	NovelStep       string `json:"novelStep"`
 	Tags            string `json:"tags"`
 	FreeDate        string `json:"freeDate"`
 	NowFree         string `json:"nowFree"`
 	NovelSize       string `json:"novelSize"`
-	NovelSizeformat string `json:"novelSizeformat"`
+	NovelSizeFormat string `json:"novelSizeformat"`
 	NovelClass      string `json:"novelClass"`
 	IsVipMonth      string `json:"isVipMonth"`
 	RecommendInfo   string `json:"recommendInfo"` // 这个字段本身是 JSON 字符串

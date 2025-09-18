@@ -8,14 +8,14 @@ import (
 )
 
 type ChapterListRoot struct {
-	Chapterlist         []Chapter `json:"chapterlist"`
+	ChapterList         []Chapter `json:"chapterlist"`
 	Count               int       `json:"count"`
-	Isfree              int       `json:"isfree"`
-	DaovLabelEndDate    string    `json:"daov_label_end_date"`
-	VipChapterid        string    `json:"vipChapterid"`
-	ProtectMeassge      string    `json:"protectMeassge"`
-	BuyNoticeMeassge    string    `json:"buyNoticeMeassge"`
-	BuyNoticeMeassge2   string    `json:"buy_notice_meassge"` // 注意：JSON 中有两个相似的字段名
+	IsFree              int       `json:"isfree"`
+	DavLabelEndDate     string    `json:"daov_label_end_date"`
+	VipChapterId        string    `json:"vipChapterid"`
+	ProtectMessage      string    `json:"protectMeassge"`
+	BuyNoticeMessage    string    `json:"buyNoticeMeassge"`
+	BuyNoticeMessage2   string    `json:"buy_notice_meassge"` // 注意：JSON 中有两个相似的字段名
 	DiscountInfo        string    `json:"discount_info"`
 	DiscountRatio       string    `json:"discount_ratio"`
 	VipMonthFlag        string    `json:"vipMonthFlag"`
@@ -23,11 +23,11 @@ type ChapterListRoot struct {
 	HalfMoneyMessage    string    `json:"halfMoneyMessage"`
 	LockInformation     string    `json:"lockInformation"`
 	LockMessage         string    `json:"lockMessage"`
-	Lockstatus          string    `json:"lockstatus"`
+	LockStatus          string    `json:"lockstatus"`
 	BackBalance         int       `json:"backBalance"`
 	BackRatio           int       `json:"backRatio"`
 	Issign              bool      `json:"issign"`
-	Editorbalance       string    `json:"editorbalance"`
+	EditorBalance       string    `json:"editorbalance"`
 	JjBalance           string    `json:"jjBalance"`
 	ExtraChapterMeassge string    `json:"extraChapterMeassge"`
 	VipShortFlag        string    `json:"vip_short_flag"`
@@ -48,20 +48,20 @@ type Chapter struct {
 	IsLock               string   `json:"islock"`
 	IsLockMessage        string   `json:"islockMessage"`
 	IsVip                int      `json:"isvip"`
-	DaovMsg              string   `json:"daov_msg"`
+	DavMsg               string   `json:"dav_msg"`
 	Point                int      `json:"point"`
 	OriginalPrice        int      `json:"originalPrice"`
 	PointFreeVip         int      `json:"pointfreevip"`
 	IsProtect            int      `json:"isProtect"`
 	OriginalPriceMessage string   `json:"originalPriceMessage"`
-	PointMeassge         string   `json:"pointMeassge"`
+	PointMessage         string   `json:"pointMeassge"`
 	ChapterMessage       string   `json:"chapterMessage"`
 	LastPostTime         string   `json:"lastpost_time"`
 	ExamineMessage       string   `json:"examineMessage"`
 	IsEdit               string   `json:"isEdit"`
 	Message              string   `json:"message"`
 	Thank                int      `json:"thank"`
-	TicketStarttime      string   `json:"ticketStarttime"`
+	TicketStartTime      string   `json:"ticketStarttime"`
 	TicketEndtime        string   `json:"ticketEndtime"`
 	Draft                Draft    `json:"draft"`
 	ManageExplain        []string `json:"manageExplain"` // 空数组

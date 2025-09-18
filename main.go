@@ -54,10 +54,12 @@ func main() {
 	if err != nil {
 		fmt.Println("❌ 获取最新版本失败:", err)
 	}
+
 	if latestVersionInfo.TagName != "" && latestVersionInfo.TagName != version {
 		fmt.Println("⚠️  当前版本可能不是最新版本，请检查更新！")
 		fmt.Printf("⚠️  最新版本: %s\n", latestVersionInfo.TagName)
 	}
+
 	if latestVersionInfo.TagName == version {
 		fmt.Println("✅ 当前版本为最新版本")
 	}
@@ -65,6 +67,7 @@ func main() {
 
 	// 加载配置 🗂️
 	fmt.Println("🔄 正在加载配置...")
+
 	appConfig, err := config.LoadConfig()
 	if err != nil {
 		fmt.Println("❌ 配置加载失败:", err)
@@ -99,6 +102,7 @@ func main() {
 
 	fmt.Println("✅ 定时任务添加成功!")
 	fmt.Println("🚀 启动定时任务调度器...")
+
 	c.Start()
 	defer c.Stop() // 优雅关闭 🔄
 
@@ -127,6 +131,7 @@ func DailyTasks(config config.Config) (bool, error) {
 
 	// 获取今日免费小说列表 📚
 	fmt.Println("🔍 正在获取今日免费小说列表...")
+
 	bookList, err := api.GetBooksList()
 	if err != nil {
 		fmt.Println("❌ 获取小说列表失败:", err)
@@ -160,6 +165,7 @@ func DailyTasks(config config.Config) (bool, error) {
 		// 创建小说文件 📄
 		bookDir := dataDir + "/" + book.NovelName + ".txt"
 		_, err = os.Stat(bookDir)
+
 		if os.IsNotExist(err) {
 			fmt.Printf("🆕 创建新小说文件: %s\n", bookDir)
 			file, err := os.Create(bookDir)
@@ -176,16 +182,17 @@ func DailyTasks(config config.Config) (bool, error) {
 
 		// 获取章节列表 📑
 		fmt.Printf("🔍 获取《%s》的章节列表...\n", book.NovelName)
+
 		chapterList, err := api.GetChapterList(book.NovelID)
 		if err != nil {
 			fmt.Println("❌ 获取章节列表失败:", err)
 			return false, fmt.Errorf("获取章节列表失败: %v", err)
 		}
 
-		fmt.Printf("✅ 共获取%d个章节\n", len(chapterList.Chapterlist))
+		fmt.Printf("✅ 共获取%d个章节\n", len(chapterList.ChapterList))
 		var content string
 
-		for j, chapter := range chapterList.Chapterlist {
+		for j, chapter := range chapterList.ChapterList {
 			fmt.Printf("   📖 处理第%d章: %s (VIP: %v)\n", j+1, chapter.ChapterName, chapter.IsVip != 0)
 
 			var chapterContent api.ChapterDetail

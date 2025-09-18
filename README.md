@@ -52,4 +52,4 @@
 
 ## 🤝 贡献
 
-欢迎提交 Issue 和 Pull Request 来帮助改进项目！
+欢迎提交 [Issue](./issues/new) 和 [Pull Request](./pulls) 来帮助改进项目！

@@ -52,4 +52,4 @@
 
 ## 🤝 贡献
 
-欢迎提交 [Issue](./issues/new) 和 [Pull Request](./pulls) 来帮助改进项目！
+欢迎提交 [Issue](https://github.com/MEMLTS/JJFreeBooks-Go/issues/new) 和 [Pull Request](https://github.com/MEMLTS/JJFreeBooks-Go/pulls) 来帮助改进项目！

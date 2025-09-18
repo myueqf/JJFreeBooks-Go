@@ -28,7 +28,7 @@
 - `cron`: 定时任务执行周期，默认为 `0 0 * * *`,只支持五位的 CRON 表达式
 - `intervals`:
     - `chapter`: 每次抓取章节的间隔时间（单位：毫秒），默认 `500`
-    - `book`: 每次抓取书籍的间隔时间（单位：毫秒），默认 `500`
+    - `book`: 每次抓取书籍的间隔时间（单位：毫秒），默认 `1000`
 
 ## 📝 使用说明
 
@@ -48,7 +48,7 @@
 
 ## 📄 许可证
 
-GNU GENERAL PUBLIC LICENSE
+[GNU GENERAL PUBLIC LICENSE](./LICENSE)
 
 ## 🤝 贡献
 

@@ -22,8 +22,8 @@ func defaultConfig() Config {
 		Token: "",
 		Cron:  "0 0 * * *",
 		Intervals: Intervals{
-			Book:    500,
-			Chapter: 1000,
+			Book:    1000,
+			Chapter: 500,
 		},
 	}
 	return config

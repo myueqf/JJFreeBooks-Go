@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
@@ -121,6 +122,33 @@ func main() {
 	select {} // 无限阻塞，保持程序运行 ♾️
 }
 
+// 格式化小说简介嗷XwX
+func formatNovelIntro(intro string) string {
+	if intro == "" {
+		return intro
+	}
+	
+	intro = strings.ReplaceAll(intro, "。”", "XwX1")
+	intro = strings.ReplaceAll(intro, "～”", "XwX2")
+	intro = strings.ReplaceAll(intro, "～", "～\n　　")
+	// intro = strings.ReplaceAll(intro, "~", "~\n　　")
+	intro = strings.ReplaceAll(intro, "。", "。\n　　")
+	intro = strings.ReplaceAll(intro, "”", "”\n　　")
+	intro = strings.ReplaceAll(intro, "\"", "\"\n　　")
+	intro = strings.ReplaceAll(intro, "XwX1", "。”\n　　")
+	intro = strings.ReplaceAll(intro, "XwX2", "～”\n　　")
+
+	// 在数字编号前面添加换行符 (如: 1. xxx, 2. xxx)
+	re := regexp.MustCompile(`(\d+)\.`)
+	intro = re.ReplaceAllString(intro, "\n　　$1.")
+	
+	// 清理多余的换行符
+	//intro = strings.ReplaceAll(intro, "\n\n", "\n")
+	//intro = strings.TrimSpace(intro)
+	
+	return intro
+}
+
 // DailyTasks 每日任务处理函数 📋
 // 参数: config - 应用程序配置
 // 返回值: bool - 任务是否成功, error - 错误信息
@@ -190,7 +218,30 @@ func DailyTasks(config config.Config) (bool, error) {
 		}
 
 		fmt.Printf("✅ 共获取%d个章节\n", len(chapterList.ChapterList))
+		
+		// 构建文件头部信息
 		var content string
+		content += fmt.Sprintf("%s\n", book.NovelName)
+		content += fmt.Sprintf("作者：%s\n", book.AuthorName)
+		content += fmt.Sprintf("简介：\n")
+		
+		content += fmt.Sprintf("　　📖%s📖\n\n", book.NovelIntroshort)
+		
+		content += fmt.Sprintf("　　%s\n", book.NovelClass)
+		content += fmt.Sprintf("　　【%s】\n", book.FreeDate)
+		content += fmt.Sprintf("\n　　◉ 标签：%s\n", book.Tags)
+		content += fmt.Sprintf("　　◉ 字数：%s\n", book.NovelSize)
+		if book.NovelStep == "2" {  // QAQ
+		content += fmt.Sprintf("　　◉ 状态：已完结")
+		} else {
+		content += fmt.Sprintf("　　◉ 状态：%s\n", book.NovelStep)
+		}
+		
+		content += fmt.Sprintf("\n　　————————•————————\n")
+		content += fmt.Sprintf("　　%s\n\n\n", formatNovelIntro(book.NovelIntro))
+		// content += fmt.Sprintf("　　————————•————————\n")
+
+
 
 		for j, chapter := range chapterList.ChapterList {
 			fmt.Printf("   📖 处理第%d章: %s (VIP: %v)\n", j+1, chapter.ChapterName, chapter.IsVip != 0)

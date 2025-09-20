@@ -78,6 +78,7 @@ func main() {
 	fmt.Println("✅ ========加载配置成功========")
 	fmt.Printf("🔑 Token:%s\n", appConfig.Token)
 	fmt.Printf("⏰ Cron表达式:%s\n", appConfig.Cron)
+	fmt.Printf("🏷️ 过滤器:%v\n", appConfig.NovelFilter)
 	fmt.Println("===============================")
 
 	// 创建cron调度器 ⏲️
@@ -149,6 +150,24 @@ func formatNovelIntro(intro string) string {
 	return intro
 }
 
+// 过滤器嗷QwQ
+func shouldDownloadNovel(novelClass string, filters []string) bool {
+	for _, filter := range filters {
+		if strings.ToLower(strings.TrimSpace(filter)) == "all" {
+			return true
+		}
+	}
+    // 检测关键词～
+	for _, filter := range filters {
+		filter = strings.TrimSpace(filter)
+		if filter != "" && strings.Contains(novelClass, filter) {
+			return true
+		}
+	}
+
+	return false
+}
+
 // DailyTasks 每日任务处理函数 📋
 // 参数: config - 应用程序配置
 // 返回值: bool - 任务是否成功, error - 错误信息
@@ -176,6 +195,16 @@ func DailyTasks(config config.Config) (bool, error) {
 	for i, book := range bookList.Data.Data {
 		fmt.Printf("\n📚 处理第%d本小说: 《%s》\n", i+1, book.NovelName)
 		fmt.Printf("🆔 小说ID: %s\n", book.NovelID)
+		fmt.Printf("📑 小说分类: %s\n", book.NovelClass)
+
+		// 康康要不要下载嗷～
+		if !shouldDownloadNovel(book.NovelClass, config.NovelFilter) {
+			fmt.Printf("⏭️ 跳过《%s》- 不匹配过滤器条件QAQ\n", book.NovelName)
+			continue
+		}
+
+		fmt.Printf("✅ 《%s》匹配到过滤器条件啦～，开～始～下～载～\n", book.NovelName)
+
 
 		// 创建数据目录 📁
 		dataDir := "data"
